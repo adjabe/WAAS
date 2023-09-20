@@ -6,6 +6,8 @@ RUN apt-get install -y git ffmpeg
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
+ENV PYTHONPATH ".:${PYTHONPATH}"
+
 COPY src src
 
 CMD [ "flask", "--app" , "src/main", "--debug", "run","--host", "0.0.0.0","--port", "3000"]

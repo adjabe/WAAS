@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --volumes hostPath
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: worker
+  name: worker
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+   matchLabels:
+      io.kompose.service: worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --volumes hostPath
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/waas-default: "true"
+        io.kompose.service: worker
+    spec:
+      containers:
+        - args:
+            - rq
+            - worker
+            - --url
+            - redis://redis:6379
+            - -c
+            - worker-settings
+          image: adjabe/waas-worker:latest
+          env:
+            - name: ALLOWED_WEBHOOKS_FILE
+              value: /workspace/allowed_webhooks.json
+          name: worker
+          resources: {}
+          volumeMounts:
+            - mountPath: /workspace
+              name: worker-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /home/ubuntu/waas
+          name: worker-hostpath0
+status: {}

@@ -1,12 +1,13 @@
 version: "3.9"
 services:
     api:
-        build:
-            context: .
-            # use Dockerfile.gpu when using a NVIDIA GPU
-            dockerfile: Dockerfile
+        image: adjabe/waas-api:latest
+          #build:
+          #  context: .
+          #  # use Dockerfile.gpu when using a NVIDIA GPU
+          #  dockerfile: Dockerfile
         ports:
-            - "3000:3000"
+            - "80:3000"
         volumes:
             - .:/workspace
         depends_on:
@@ -20,10 +21,11 @@ services:
             - ALLOWED_WEBHOOKS_FILE
         command: gunicorn -w 2 -b 0.0.0.0:3000 --log-file=- 'src.main:app'
     worker:
-        build:
-            context: .
-            # use Dockerfile.gpu when using a NVIDIA GPU
-            dockerfile: Dockerfile
+        image: adjabe/waas-worker:latest
+          #build:
+          #  context: .
+          #  # use Dockerfile.gpu when using a NVIDIA GPU
+          #  dockerfile: Dockerfile
         volumes:
             - .:/workspace
         depends_on:
@@ -44,6 +46,6 @@ services:
         #                   capabilities: [gpu]
 
     redis:
-        image: redis
+        image: adjabe/redis
         ports:
             - "6379:6379"

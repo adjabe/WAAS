@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --volumes hostPath
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api
+  name: api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --volumes hostPath
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/waas-default: "true"
+        io.kompose.service: api
+    spec:
+      containers:
+        - args:
+          - gunicorn
+          - -w
+          - "2"
+          - -b
+          - 0.0.0.0:3000
+          - --log-file=-
+          - src.main:app
+          image: adjabe/waas-api:latest
+          env: 
+            - name: ALLOWED_WEBHOOKS_FILE
+              value: /workspace/allowed_webhooks.json
+          name: api
+          ports:
+            - containerPort: 3000
+              hostPort: 80
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /workspace
+              name: api-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /home/ubuntu/waas
+          name: api-hostpath0
+status: {}
